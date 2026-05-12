@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "description": "Agent 可主动调度的 Linux 运维工具与 runbook 映射（由 agent-router.sh 解析）",
+  "runbooks": [
+    {
+      "id": "disk",
+      "script": "runbooks/disk_check.sh",
+      "tools": ["df", "findmnt", "awk"],
+      "intent_keywords": ["磁盘", "空间", "df", "inode", "挂载", "mount"]
+    },
+    {
+      "id": "disk_io",
+      "script": "runbooks/disk_io.sh",
+      "tools": ["lsblk", "iostat", "sar"],
+      "intent_keywords": ["iostat", "磁盘io", "块设备", "lsblk", "await", "io延迟"]
+    },
+    {
+      "id": "log",
+      "script": "runbooks/log_audit.sh",
+      "tools": ["grep", "awk", "tail", "head"],
+      "intent_keywords": ["日志", "log", "journal", "审计", "错误"]
+    },
+    {
+      "id": "network",
+      "script": "runbooks/network_diag.sh",
+      "tools": ["ip", "ss", "ping", "resolvectl", "getent", "hostname"],
+      "intent_keywords": ["网络", "端口", "监听", "路由", "ping", "防火墙", "socket"]
+    },
+    {
+      "id": "systemd",
+      "script": "runbooks/systemd_audit.sh",
+      "tools": ["systemctl", "systemd-analyze"],
+      "intent_keywords": ["systemd", "服务", "失败单元", "定时器", "开机"]
+    },
+    {
+      "id": "sysinfo",
+      "script": "runbooks/distro_info.sh",
+      "tools": ["grep", "uname", "hostname", "uptime"],
+      "intent_keywords": ["发行版", "内核", "版本", "主机名", "os-release"]
+    },
+    {
+      "id": "proc",
+      "script": "runbooks/proc_health.sh",
+      "tools": ["ps", "uptime", "vmstat", "nproc", "systemctl"],
+      "intent_keywords": ["进程", "负载", "cpu", "内存", "top", "vmstat"]
+    }
+  ]
+}

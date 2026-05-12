@@ -1,0 +1,53 @@
+# 上游仓库：https://github.com/kfdkdjdjsulaiman854-code/-ai-devops-agent
+# 启动类：com.devops.agent.DevOpsAgentApplication
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: devops-agent
+  datasource:
+    url: jdbc:mysql://localhost:3306/devops_agent?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false
+    username: root
+    password: ${DB_PASSWORD:your_db_password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.devops.agent.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# AI LLM Configuration
+llm:
+  api-key: ${LLM_API_KEY:sk-your-api-key}
+  base-url: ${LLM_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
+  model: ${LLM_MODEL:qwen-plus}
+  max-tokens: 4000
+  temperature: 0.3
+
+# SSH Default Settings
+ssh:
+  default-port: 22
+  timeout: 30000
+  charset: UTF-8
+
+# 课设 linux-agent-skills 在 SSH 目标机上的部署路径（需包含 bin/agent-router.sh）
+linux-skills:
+  remote-path: ${LINUX_SKILLS_REMOTE_PATH:/opt/linux-agent-skills}
+
+# Logging
+logging:
+  level:
+    com.devops.agent: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Security Configuration
+security:
+  command:
+    mode: permissive  # strict, permissive, disabled
+    blacklist: ""     # comma-separated list of blocked commands
+    whitelist: ""     # comma-separated list of allowed commands (strict mode)

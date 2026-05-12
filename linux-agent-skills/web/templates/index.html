@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Linux Agent Skills 控制台</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <header class="hero">
+    <h1>Linux 运维 Agent Skills</h1>
+    <p class="sub">安全巡检由 <code>agent-router.sh</code> 关键词路由到 runbook，已接入磁盘/磁盘IO、日志、网络（ip/ss）、systemd、系统版本、进程负载等工具链；自动模式解析中文意图；Shell 实验为单行命令（经黑名单）。勿暴露公网。</p>
+  </header>
+
+  <main class="card">
+    <fieldset class="mode-fieldset">
+      <legend>运行模式</legend>
+      <label class="inline"><input type="radio" name="mode" value="skills" checked /> 安全巡检（受控技能）</label>
+      <label class="inline"><input type="radio" name="mode" value="auto" /> 自动识别（中文意图 / 单行命令）</label>
+      <label class="inline"><input type="radio" name="mode" value="shell" /> Shell 实验（单行 shell）</label>
+    </fieldset>
+
+    <label for="query">输入内容</label>
+    <textarea id="query" rows="3" placeholder="安全巡检：检查磁盘空间…&#10;自动：在 tmp 目录下创建一个 demo 文件夹&#10;Shell：ls -la /opt"></textarea>
+
+    <div class="row">
+      <label class="chk"><input type="checkbox" id="dry" /> 仅干跑（--dry-run，仅安全巡检模式有效）</label>
+      <label class="chk"><input type="checkbox" id="sudo" /> 尝试提升读日志权限（AGENT_USE_SUDO=1，需免密 sudo）</label>
+    </div>
+
+    <div id="risk-wrap" class="risk-box" hidden>
+      <p class="risk-title">自动 / Shell 模式会由后端执行真实命令（含 <code>bash -lc</code>），已做长度与黑名单限制，但仍<strong>不是</strong>绝对安全。仅用于本机课设，勿对公网开放。</p>
+      <label class="chk"><input type="checkbox" id="confirm-risk" /> 我已知晓风险并确认执行</label>
+    </div>
+
+    <div class="actions">
+      <button type="button" id="btn-run">执行</button>
+      <span id="status" class="status"></span>
+    </div>
+
+    <section class="out">
+      <h2>执行结果</h2>
+      <pre id="out-stdout" class="mono" title="stdout"></pre>
+      <pre id="out-stderr" class="mono err" title="stderr"></pre>
+      <p id="meta" class="meta"></p>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>课设项目 · 安全巡检不接受 shell 元字符；自动 / Shell 模式需勾选确认。</p>
+  </footer>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const modeRadios = () => document.querySelectorAll('input[name="mode"]');
+    const currentMode = () => {
+      for (const r of modeRadios()) if (r.checked) return r.value;
+      return "skills";
+    };
+    const syncRiskUi = () => {
+      const m = currentMode();
+      const show = m === "auto" || m === "shell";
+      $("risk-wrap").hidden = !show;
+      if (!show) $("confirm-risk").checked = false;
+    };
+    for (const r of modeRadios()) r.addEventListener("change", syncRiskUi);
+    syncRiskUi();
+
+    $("btn-run").addEventListener("click", async () => {
+      const mode = currentMode();
+      const query = $("query").value;
+      $("status").textContent = "执行中…";
+      $("out-stdout").textContent = "";
+      $("out-stderr").textContent = "";
+      $("meta").textContent = "";
+      const confirm_risk = $("confirm-risk").checked;
+      try {
+        const res = await fetch("/api/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode,
+            query,
+            dry_run: $("dry").checked,
+            use_sudo: $("sudo").checked,
+            confirm_risk,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          $("status").textContent = "失败";
+          $("out-stderr").textContent = data.error || JSON.stringify(data);
+          return;
+        }
+        $("status").textContent = "完成 (exit " + data.returncode + ")";
+        $("out-stdout").textContent = data.stdout || "(无 stdout)";
+        $("out-stderr").textContent = data.stderr || "";
+        const parts = [];
+        parts.push("mode=" + (data.mode || mode));
+        if (data.query != null) parts.push("query=" + data.query);
+        if (data.executed) parts.push("executed=" + data.executed);
+        if (data.explanation) parts.push("explanation=" + data.explanation);
+        if (data.fallback) parts.push("fallback=" + data.fallback);
+        if (data.note) parts.push("note=" + data.note);
+        parts.push("dry_run=" + data.dry_run + " | use_sudo=" + data.use_sudo);
+        $("meta").textContent = parts.join(" | ");
+      } catch (e) {
+        $("status").textContent = "请求异常";
+        $("out-stderr").textContent = String(e);
+      }
+    });
+  </script>
+</body>
+</html>

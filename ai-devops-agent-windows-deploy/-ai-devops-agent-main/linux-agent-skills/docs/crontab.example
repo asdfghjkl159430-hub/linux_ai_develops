@@ -1,0 +1,5 @@
+# 课设示例：每日 08:00 巡检（请 crontab -e 按需启用）
+# 说明：路径请改为本机实际路径
+# m h dom mon dow command
+0 8 * * * AGENT_USE_SUDO=0 /opt/kcsj/linux-agent-skills/bin/agent-router.sh "磁盘空间巡检" >>/opt/kcsj/linux-agent-skills/logs/cron-disk.log 2>&1
+30 8 * * * AGENT_USE_SUDO=0 /opt/kcsj/linux-agent-skills/bin/agent-router.sh "进程负载检查" >>/opt/kcsj/linux-agent-skills/logs/cron-proc.log 2>&1

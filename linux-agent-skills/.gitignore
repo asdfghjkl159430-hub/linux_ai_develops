@@ -1,0 +1,11 @@
+.venv-web/
+logs/*.log
+logs/*.txt
+*.swp
+*~
+.DS_Store
+__pycache__/
+*.pyc
+.pytest_cache/
+.vscode/
+.idea/

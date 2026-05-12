@@ -1,0 +1,28 @@
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Build
+target/
+*.class
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+
+# Sensitive
+application-local.yml
+.env
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# Screenshots
+截图/
+.dumate/

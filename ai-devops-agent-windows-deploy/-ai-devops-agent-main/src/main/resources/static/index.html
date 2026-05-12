@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI DevOps Agent 控制台</title>
+    <link rel="stylesheet" href="/css/app.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <header class="top">
+        <div>
+          <h1>AI DevOps Agent 控制台</h1>
+          <div class="sub">在同一页面管理 SSH 主机、执行任务与查看日志</div>
+        </div>
+        <div class="sub">
+          后端：<span id="health-status" class="badge">检测中…</span>
+          <button type="button" id="btn-refresh" class="secondary small" style="margin-left: 0.5rem">
+            刷新列表
+          </button>
+          <span class="sub" style="margin-left: 0.75rem">
+            API 前缀 <span class="mono">/api</span> · 打开 <a href="/">/</a>
+          </span>
+        </div>
+      </header>
+
+      <section class="panel">
+        <h2>添加 Linux 主机</h2>
+        <form id="form-server" class="grid-2">
+          <label>显示名称<input id="srv-name" required placeholder="如 prod-vm" /></label>
+          <label>IP / 域名<input id="srv-host" required placeholder="192.168.x.x" /></label>
+          <label
+            >SSH 端口<input id="srv-port" type="number" value="22" min="1" max="65535"
+          /></label>
+          <label>用户名<input id="srv-user" required placeholder="root" /></label>
+          <label style="grid-column: 1 / -1">密码<input id="srv-pass" type="password" required autocomplete="new-password" /></label>
+          <div class="row">
+            <button type="submit">保存到库</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2>已登记主机</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>名称</th>
+                <th>地址</th>
+                <th>用户</th>
+                <th>密码</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="servers-body">
+              <tr>
+                <td colspan="6" class="loading">加载中…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>执行任务</h2>
+        <div class="row">
+          <label style="flex: 1">
+            目标服务器
+            <select id="task-server-id"><option value="">请选择</option></select>
+          </label>
+          <label>
+            Agent
+            <select id="task-agent-type"><option value="auto">加载中…</option></select>
+          </label>
+        </div>
+        <label>自然语言 / 巡检描述（发往远端）</label>
+        <textarea id="task-input" placeholder="例如：查看内存使用；或使用 linux_skills：检查一下磁盘空间和网络端口"></textarea>
+        <div class="row">
+          <button type="button" id="btn-task-sync">同步执行</button>
+          <button type="button" id="btn-task-async">异步执行（支持自动选 Agent）</button>
+        </div>
+        <p class="muted" style="margin: 0; color: var(--muted); font-size: 0.85rem">
+          同步会一直等到结束；异步立即返回。
+          <code style="color: var(--muted)">command_executor / deploy_agent / log_analyzer</code>
+          等需配置好 LLM；<code style="color: var(--muted)">linux_skills</code> 需在目标机部署课设脚本。
+        </p>
+      </section>
+
+      <section class="panel">
+        <h2>多 Agent 工作流</h2>
+        <div class="row">
+          <label style="flex: 1">
+            服务器
+            <select id="wf-server-id"><option value="">请选择</option></select>
+          </label>
+        </div>
+        <label>复杂场景描述（由 LLM 拆步骤）</label>
+        <textarea id="wf-input" placeholder="描述需要多步骤协作的运维目标…"></textarea>
+        <button type="button" id="btn-workflow">提交工作流任务</button>
+      </section>
+
+      <section class="panel">
+        <h2>最近任务</h2>
+        <p class="muted" style="margin: 0 0 0.5rem; font-size: 0.82rem">
+          点击一行查看命令与日志。
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>输入摘要</th>
+                <th>主机</th>
+                <th>Agent</th>
+                <th>状态</th>
+                <th>时间</th>
+              </tr>
+            </thead>
+            <tbody id="tasks-body">
+              <tr>
+                <td colspan="6" class="loading">加载中…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <div id="toast-area" class="toast-area" aria-live="polite"></div>
+
+    <div id="task-modal" class="task-detail-modal" role="dialog">
+      <div class="task-detail-inner">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem">
+          <span style="font-weight: 600">任务详情</span>
+          <button type="button" class="secondary small" id="btn-close-modal">关闭</button>
+        </div>
+        <div id="task-modal-body"></div>
+      </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+  </body>
+</html>

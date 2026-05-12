@@ -1,0 +1,6 @@
+a1b2c3d chore: 初始化 Linux Agent Skills 课设仓库
+e4f5g6h feat: 磁盘/日志/进程 runbook 与公共库
+i7j8k9l docs: Agent Skills 规格 Markdown
+m0n1o2p test: 冒烟测试与需求设计文档
+q3r4s5t docs: 课程报告与 README 定稿
+（示例：请在安装 Git 并完成提交后，使用 git log --oneline 覆盖本文件内容）
