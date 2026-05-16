@@ -17,7 +17,12 @@
       "Bash(sc query *)",
       "Bash(netstat -ano)",
       "Bash(tasklist *)",
-      "Bash(powershell *)"
+      "Bash(powershell *)",
+      "Bash(ssh *)",
+      "Bash(wsl *)",
+      "Bash(sshpass *)",
+      "Bash(curl *)",
+      "Bash(iconv -f UTF-8 -t UTF-8)"
     ]
   }
 }

@@ -177,7 +177,7 @@ public class TaskOrchestrator {
         taskLog.setTaskId(taskId);
         taskLog.setStep(step);
         taskLog.setCommand(command);
-        taskLog.setOutput(truncate(result.output(), 50000));
+        taskLog.setOutput(truncate(result.isSuccess() ? result.output() : (result.output() + (result.error() != null && !result.error().isEmpty() ? "\n[错误] " + result.error() : "")), 50000));
         taskLog.setExitCode(result.exitCode());
         taskLog.setAiReasoning(reasoning);
         taskLog.setStatus(result.isSuccess() ? 1 : 2);
